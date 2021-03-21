@@ -889,7 +889,7 @@ namespace Project_FinchControl
         /// *    Get Command Parameters from User       *
         /// *********************************************
         /// </summary>
-        /// <returns>tuple of comand parameters</returns>
+        /// <returns>tuple of command parameters</returns>
         static (int motorSpeed, int ledBrightness, double waitSeconds) UserProgrammingDisplayGetCommandParameters()
         {
             DisplayScreenHeader("Command Parameters");
@@ -929,7 +929,7 @@ namespace Project_FinchControl
         /// *              Get Commands form User                 *
         /// *******************************************************
         /// </summary>
-        /// <param name="commands">lst of commands</param>
+        /// <param name="commands">list of commands</param>
         static void UserProgrammingDisplayGetFinchCommands(List<Command> commands)
         {
             Command command = Command.None;

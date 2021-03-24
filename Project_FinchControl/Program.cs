@@ -42,6 +42,7 @@ namespace Project_FinchControl
         private static int danceSoundLevel;
         private static int lightSoundLevel;
         private static int numberOfDataPoints;
+        private static bool vaildResponse;
 
         /// <summary>
         /// first method run when the app starts up
@@ -64,6 +65,8 @@ namespace Project_FinchControl
             Console.ForegroundColor = ConsoleColor.DarkBlue;
             Console.BackgroundColor = ConsoleColor.White;
         }
+
+
 
         /// <summary>
         /// *****************************************************************
@@ -702,7 +705,7 @@ namespace Project_FinchControl
 
 
         #endregion
-        #region USER PROGRAMMING
+
 
         /// <summary>
         /// ************************************
@@ -772,7 +775,7 @@ namespace Project_FinchControl
 
                 }
 
-            } while (!quit);
+            } while (!quitMenu);
         }
         /// <summary>
         /// ***************************************************************
@@ -784,7 +787,7 @@ namespace Project_FinchControl
         /// <param name="commandParameters">tuple of command parameters</param>
         static void UserProgrammingDisplayExecuteFinchCommands(
             Finch finchRobot,
-            List<Command> commands, 
+            List<Command> commands,
             (int motorSpeed, int ledBrightness, double waitSeconds) commandParameters)
         {
             int motorSpeed = commandParameters.motorSpeed;
@@ -797,7 +800,7 @@ namespace Project_FinchControl
 
             Console.WriteLine("\tThe Finch robot is ready to execute the list of commands.");
             DisplayContinuePrompt();
-            
+
             foreach (Command command in commands)
             {
                 switch (command)
@@ -808,7 +811,7 @@ namespace Project_FinchControl
                     case Command.MoveForward:
                         finchRobot.setMotors(motorSpeed, motorSpeed);
                         commandFeedback = Command.MoveForward.ToString();
-                         break;
+                        break;
 
                     case Command.MoveBackward:
                         finchRobot.setMotors(-motorSpeed, -motorSpeed);
@@ -824,7 +827,7 @@ namespace Project_FinchControl
                         finchRobot.wait(waitMilliSeconds);
                         commandFeedback = Command.Wait.ToString();
                         break;
-                    
+
                     case Command.TurnRight:
                         finchRobot.setMotors(TURNING_MOTOR_SPEED, -TURNING_MOTOR_SPEED);
                         commandFeedback = Command.TurnRight.ToString();
@@ -879,11 +882,11 @@ namespace Project_FinchControl
                 Console.WriteLine($"\t{command}");
             }
 
-            DisplayMenuPrompt("User Programming"); 
+            DisplayMenuPrompt("User Programming");
         }
 
- 
-        
+
+
         /// <summary>
         /// *********************************************
         /// *    Get Command Parameters from User       *
@@ -892,16 +895,56 @@ namespace Project_FinchControl
         /// <returns>tuple of command parameters</returns>
         static (int motorSpeed, int ledBrightness, double waitSeconds) UserProgrammingDisplayGetCommandParameters()
         {
+            bool validResponse;
+
             DisplayScreenHeader("Command Parameters");
 
             (int motorSpeed, int ledBrightness, double waitSeconds) commandParameters;
             commandParameters.motorSpeed = 0;
             commandParameters.ledBrightness = 0;
             commandParameters.waitSeconds = 0;
-            
-            GetValidInteger("\tEnter Motor Speed [1 - 250]:", 1, 250, out commandParameters.motorSpeed);
-            GetValidInteger("\tEnter LED Brightness [1 - 250];", 1, 250, out commandParameters.ledBrightness);
-            GetValidDouble("\tEnter Wait in Seconds:", 0, 8, out commandParameters.waitSeconds);
+
+            do
+            {
+                validResponse = true;
+
+                Console.WriteLine("\tEnter Motor Speed [1 - 250]:");
+                if (!int.TryParse(Console.ReadLine(), out commandParameters.motorSpeed))
+                {
+                    Console.WriteLine("\tPlease enter a proper speed.[1 - 250]");
+                    validResponse = false;
+                }
+
+            } while (!validResponse);
+            //GetValidInteger("\tEnter Motor Speed [1 - 250]:", 1, 250, out commandParameters.motorSpeed);
+
+            do
+            {
+                validResponse = true;
+                
+                Console.WriteLine("\tEnter LED Brightness [1 - 250]:");
+                if (!int.TryParse(Console.ReadLine(), out commandParameters.ledBrightness))
+                {
+                    Console.WriteLine("\tPlease enter a proper led brightness.[1- 250");
+                    validResponse = false;
+                }
+
+            } while (!validResponse);
+            //GetValidInteger("\tEnter LED Brightness [1 - 250];", 1, 250, out commandParameters.ledBrightness);
+
+            do
+            {
+                validResponse = true;
+
+                Console.WriteLine("\tEnter Wait in Seconds [0 - 8]:");
+                if (!double.TryParse(Console.ReadLine(), out commandParameters.waitSeconds))
+                {
+                    Console.WriteLine("\tPlease enter a proper seconds.[0 - 8");
+                    vaildResponse = false;
+                }
+                
+            } while (!validResponse);
+            //GetValidDouble("\tEnter Wait in Seconds:", 0, 8, out commandParameters.waitSeconds);
 
             Console.WriteLine();
             Console.WriteLine($"\tMotors speed: {commandParameters.motorSpeed}");
@@ -958,7 +1001,7 @@ namespace Project_FinchControl
                 if (Enum.TryParse(Console.ReadLine().ToLower(), out command))
                 {
                     commands.Add(command);
-                } 
+                }
                 else
                 {
 
@@ -969,7 +1012,7 @@ namespace Project_FinchControl
             }
 
             // echo commands
-         }
+        }
         #region FINCH ROBOT MANAGEMENT
 
         /// <summary>

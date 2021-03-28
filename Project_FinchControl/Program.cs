@@ -22,7 +22,11 @@ namespace Project_FinchControl
         GetTemperature,
         Done
     }
-
+    public enum Colors
+    {
+        Red,
+        Black
+    }
 
     // **************************************************
     //
@@ -32,17 +36,21 @@ namespace Project_FinchControl
     // Application Type: Console
     // Author: Moreno, Teresia
     // Dated Created: 2/8/2021
-    // Last Modified: 3/21/2021
+    // Last Modified: 3/28/2021
     //
     // **************************************************
 
     class Program
     {
-        private static int danceLevel;
-        private static int danceSoundLevel;
-        private static int lightSoundLevel;
-        private static int numberOfDataPoints;
-        private static bool vaildResponse;
+        static int danceLevel;
+        static int danceSoundLevel;
+        static int lightSoundLevel;
+        static int numberOfDataPoints;
+        static bool vaildResponse;
+        static object foregroundColor;
+        static object themeColor;
+        static object background;
+        static object foreground;
 
         /// <summary>
         /// first method run when the app starts up
@@ -921,7 +929,7 @@ namespace Project_FinchControl
             do
             {
                 validResponse = true;
-                
+
                 Console.WriteLine("\tEnter LED Brightness [1 - 250]:");
                 if (!int.TryParse(Console.ReadLine(), out commandParameters.ledBrightness))
                 {
@@ -942,7 +950,7 @@ namespace Project_FinchControl
                     Console.WriteLine("\tPlease enter a proper seconds.[0 - 8");
                     vaildResponse = false;
                 }
-                
+
             } while (!validResponse);
             //GetValidDouble("\tEnter Wait in Seconds:", 0, 8, out commandParameters.waitSeconds);
 
@@ -1014,6 +1022,130 @@ namespace Project_FinchControl
             // echo commands
         }
         #region FINCH ROBOT MANAGEMENT
+
+        ///<summary>
+        ///***********************************
+        ///*    Set Console Theme Screen     *
+        ///***********************************
+        ///</summary>
+        static void DisplaySetTheme()
+        {
+            (ConsoleColor foregroundColor, ConsoleColor backgroundColor) themeColors;
+            bool themeChosen = false;
+
+            //
+            // set current theme from data
+            //
+            themeColors = ReadThemeData();
+            Console.ForegroundColor = themeColors.foregroundColor;
+            Console.BackgroundColor = themeColors.backgroundColor;
+            Console.Clear();
+            DisplayScreenHeader("Set Application Theme");
+
+            Console.WriteLine($"\tCurrent foreground color:{Console.ForegroundColor}");
+            Console.WriteLine($"\tCurrent background color:{Console.BackgroundColor}");
+            Console.WriteLine();
+
+            Console.Write("\tIs this theme good [yes | no]?");
+            if (Console.ReadLine().ToLower() == "yes") 
+            {
+                do
+                {
+                    themeColors.foregroundColor = GetConsoleColorFromUser("foreground");
+                    themeColors.backgroundColor = GetConsoleColorFromUser("background");
+
+                    //
+                    // set new theme
+                    //
+                    Console.ForegroundColor = themeColors.foregroundColor;
+                    Console.BackgroundColor = themeColors.backgroundColor;
+                    Console.Clear();
+                    DisplayScreenHeader("Set Application Theme");
+                    Console.WriteLine($"\tNew foreground color: {Console.ForegroundColor}");
+                    Console.WriteLine($"\tNew background color: {Console.BackgroundColor}");
+
+                    Console.WriteLine();
+                    Console.WriteLine("\tDo you like this theme?");
+                    if (Console.ReadLine().ToLower() == "yes")
+                    {
+                        themeChosen = true;
+                        WriteThemeData(themeColors, foregroundColor, themeColors.backgroundColor);
+                    }
+
+
+
+                } while (!themeChosen);
+            }
+            DisplayContinuePrompt(); 
+
+
+        }
+        /// <summary>
+        /// get a console color from user
+        /// </summary>
+        /// <param name="property">foreground or backgrouns</param>
+        /// <returns>user's console color</returns>
+         static ConsoleColor GetConsoleColorFromUser(string property)
+        {
+            ConsoleColor consoleColor;
+            bool validConsoleColor;
+
+            do
+            {
+                Console.Write($"\tEnter a value for the {property}:");
+                validConsoleColor = Enum.TryParse<ConsoleColor>(Console.ReadLine(), true, out consoleColor);
+
+                if (!validConsoleColor)
+
+                {
+                    Console.WriteLine("\n\t*****You did not provide a valid console color. Please try again.*****\n");
+                }
+                else
+                {
+                    validConsoleColor = true;
+                }
+            } while (!validConsoleColor);
+
+            return consoleColor;
+        }
+
+        /// <summary>
+        /// write theme info to data file
+        /// Note: no error or validation checking
+        /// </summary>
+        /// <returns>tuple of foreground and background</returns>
+        /// <param name="themeColors"></param>
+        /// <param name="foregroundColor"></param>
+        /// <param name="backgroundColor"></param>
+        static void WriteThemeData((ConsoleColor foregroundColor, ConsoleColor backgroundColor) themeColors, object foregroundColor, ConsoleColor backgroundColor)
+        {
+            string dataPath =@"Data/Theme.txt";
+
+            File.WriteAllText(dataPath, foreground.ToString() + "\n");
+            File.AppendAllText(dataPath, background.ToString());
+        }
+        /// <summary>
+        /// read theme info from data file
+        /// Note: no error or validation checking
+        /// </summary>
+        /// <returns>tuple of foreground and background</returns>
+        static (ConsoleColor foregroundColor, ConsoleColor backgroundColor) ReadThemeData()
+        {
+            string dataPath =@"Data/Theme.txt";
+            string[] themeColors;
+
+            ConsoleColor foregroundColor;
+            ConsoleColor backgroundColor;
+
+            themeColors = File.ReadAllLines(dataPath);
+
+            Enum.TryParse(themeColors[0], true, out foregroundColor);
+            Enum.TryParse(themeColors[1], true, out backgroundColor);
+
+            return (foregroundColor, backgroundColor);
+        }
+
+
 
         /// <summary>
         /// *****************************************************************
